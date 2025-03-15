@@ -21,8 +21,8 @@ import random
 import openai
 import re
 import time
-openai.api_key = "sk-SDLY844C9Be258ccd370T3BLBkFJ9F38614707B24F6aba64"
-openai.api_base = "https://api.ohmygpt.com/v1"
+openai.api_key = ""
+openai.api_base = ""
 
 
 def get_judge_system_prompt(goal):
