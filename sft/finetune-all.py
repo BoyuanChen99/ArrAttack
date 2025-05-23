@@ -13,10 +13,6 @@ validation_data_path = "/home/lilinbao/robust_jailbreak-v2/sft-llama2/val_data-a
 training_dataset = load_dataset("json", data_files=training_data_path, split='train')
 val_dataset = load_dataset("json", data_files=validation_data_path, split='train')
 
-# # 输出dataset的数据条数
-# print(f"Length of dataset: {len(training_dataset)}, {len(val_dataset)}")
-# # 输出其中某一条数据来看看内容，确保和./dataset-SAMSum/train.json中内容一致
-# print(training_dataset[0])
 
 ### 使用*** ***可以使得模型在训练过程中更好识别任务类型，起强调作用【###的作用同理】
 def format_instruction(sample):
