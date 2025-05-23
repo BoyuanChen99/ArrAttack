@@ -18,12 +18,15 @@ from utils.string_utils import load_conversation_template, ArrAttack_SuffixManag
 from tqdm import tqdm
 import random
 
+path_to_toxic = "/path/to/GPTFuzz"
+path_to_parap = "/path/to/chatgpt_paraphraser_on_T5_base"
+path_to_simil = "/path/to/sentence-transformers/all-mpnet-base-v2"
 
 # 生成模型输出
 def generate_model_response(model, tokenizer, input_ids, assistant_role_slice, gen_config=None):
     if gen_config is None:
         gen_config = model.generation_config
-        gen_config.max_new_tokens = 256
+        gen_config.max_new_tokens = 512
     input_ids = input_ids[:assistant_role_slice.stop].to('cuda').unsqueeze(0)
     attn_masks = torch.ones_like(input_ids).to('cuda')
     output_ids = model.generate(input_ids,
@@ -101,10 +104,10 @@ def get_similarity_score(prompta, promptb, tokenizer, model):
     return cosine_scores[0][1].cpu().item()
 
 
-# 待攻击的模型
+# target LLM
 model = "llama2"
-model_path_dicts = {"llama2": "/data/LLM_models/llama2/llama-2-7b-chat-hf/", "vicuna": "/data/LLM_models/vicuna/vicuna-7b-v1.5",
-                    "guanaco": "/data/LLM_models/guanaco/guanaco-7B-HF"}
+model_path_dicts = {"llama2": "/path/to/llama-2-7b-chat-hf/", "vicuna": "/path/to/vicuna-7b-v1.5",
+                    "guanaco": "/path/to/guanaco-7B-HF"}
 
 model_path = model_path_dicts[model]
 template_name = model
@@ -114,45 +117,35 @@ model, tokenizer = load_model_and_tokenizer(model_path,
 conv_template = load_conversation_template(template_name)
 
 
-model_toxic = RobertaForSequenceClassification.from_pretrained("/data2/lilinbao/GPTFuzz").to('cuda')
-tokenizer_toxic = RobertaTokenizer.from_pretrained("/data2/lilinbao/GPTFuzz")
+model_toxic = RobertaForSequenceClassification.from_pretrained(path_to_toxic).to('cuda')
+tokenizer_toxic = RobertaTokenizer.from_pretrained(path_to_toxic)
 
 
-tokenizer_parap = AutoTokenizer.from_pretrained("/data2/lilinbao/chatgpt_paraphraser_on_T5_base")
-model_parap = AutoModelForSeq2SeqLM.from_pretrained("/data2/lilinbao/chatgpt_paraphraser_on_T5_base").cuda()
+tokenizer_parap = AutoTokenizer.from_pretrained(path_to_parap)
+model_parap = AutoModelForSeq2SeqLM.from_pretrained(path_to_parap).cuda()
 
 
-tokenizer_simil = AutoTokenizer.from_pretrained('/data2/lilinbao/sentence-transformers/all-mpnet-base-v2')
-model_simil = AutoModel.from_pretrained('/data2/lilinbao/sentence-transformers/all-mpnet-base-v2').cuda()
+tokenizer_simil = AutoTokenizer.from_pretrained(path_to_simil)
+model_simil = AutoModel.from_pretrained(path_to_simil).cuda()
 
 
-df = pd.read_csv('/home/lilinbao/robust_jailbreak-v2/sft-vicuna/file3.csv')
+df = pd.read_csv('/path/to/data/....csv')
 prompt_list = df.values.tolist()
 
 num_steps = 30
 arfa = 0.7
-save_path = "/home/lilinbao/robust_jailbreak-v2/data/output/SRJ/llama2.csv"
-
-# df2 = pd.read_csv('/home/lilinbao/robust_jailbreak-v2/data/result/robpa-without/llama2.csv', header=None)
-# result_list = df2.values.tolist()
+save_path = "/path/to/data/output/....csv"
 
 
 for i, item in tqdm(enumerate(prompt_list)):
     prompt = item[0]
     target = item[1]
 
-    # result_a = result_list[i]   
-    # if result_a[3] == 1 and result_a[5] >= 0.7:
-    #     with open(save_path, 'a', newline='') as file:
-    #         writer = csv.writer(file)
-    #         writer.writerow(result_a)
-    #     continue
-
     # 每一轮挑前五, 每个变异10次, 总共五十个
     flag = False
     cur_sort = []
 
-    suffix_manager = robpa_SuffixManager(tokenizer=tokenizer,
+    suffix_manager = ArrAttack_SuffixManager(tokenizer=tokenizer,
                                          conv_template=conv_template,
                                          instruction=prompt,
                                          target=target,
@@ -216,16 +209,6 @@ for i, item in tqdm(enumerate(prompt_list)):
                 cur_sort = cur_sort[:5]
             else:
                 cur_sort = sorted(filtered_data_toxic, key=lambda x: x[2], reverse=True)[:5]
-
-
-        # print("iter:", iteration)
-        # print(cur_sort[0])
-        # print(len(cur_sort))
-        # # print(cur_sort[1])
-        # # print(cur_sort[2])
-        # # print(cur_sort[3])
-        # # print(cur_sort[4])
-        # print("="*20)
 
     if not flag:
         if cur_sort[0][1] < 0.7:

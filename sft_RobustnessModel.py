@@ -8,15 +8,11 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
-training_data_path = "/home/lilinbao/robust_jailbreak-v2/data/finetune_data/train_data-v3.json"
-validation_data_path = "/home/lilinbao/robust_jailbreak-v2/data/finetune_data/val_data-v3.json"
+training_data_path = "/path/to/data/finetune_data/train_data.json"
+validation_data_path = "/path/to/data/finetune_data/val_data.json"
 training_dataset = load_dataset("json", data_files=training_data_path, split='train')
 val_dataset = load_dataset("json", data_files=validation_data_path, split='train')
 
-# # 输出dataset的数据条数
-# print(f"Length of dataset: {len(training_dataset)}, {len(val_dataset)}")
-# # 输出其中某一条数据来看看内容，确保和./dataset-SAMSum/train.json中内容一致
-# print(training_dataset[0])
 
 ### 使用*** ***可以使得模型在训练过程中更好识别任务类型，起强调作用【###的作用同理】
 def format_instruction(sample):
@@ -30,16 +26,11 @@ Determine the robustness of the following sentence. If the sentence is highly ro
 {sample['response']}
 """
 
-# # 输出其中某一条数据来看看数据格式处理是否符合预期
-# sample = training_dataset[0]
-# print(format_instruction(sample)) 
-
-
 # 用于加速以及缩减显存的占用
 use_flash_attention = True
 
 # 加载模型
-model_path = "/data/LLM_models/llama2/llama-2-7b-hf/"
+model_path = "/path/to/llama-2-7b-hf/"
 model = AutoModelForCausalLM.from_pretrained(
     model_path,
     use_cache=False,
@@ -55,7 +46,7 @@ tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"
 
 
-output_dir = "/data2/lilinbao/llama2-7b-all-robust-v4"
+output_dir = "/path/to/llama2-7b-robust"
 args = TrainingArguments(
     output_dir=output_dir,
     num_train_epochs=8,

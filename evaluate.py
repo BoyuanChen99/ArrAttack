@@ -61,8 +61,8 @@ def evaluate_response(goal, assistant_response):
 
 # target LLM
 model = "llama2"
-model_path_dicts = {"llama2": "/data/LLM_models/llama2/llama-2-7b-chat-hf/", "vicuna": "/data/LLM_models/vicuna/vicuna-7b-v1.5",
-                    "guanaco": "/data/LLM_models/guanaco/guanaco-7B-HF"}
+model_path_dicts = {"llama2": "/path/to/llama-2-7b-chat-hf/", "vicuna": "/path/to/vicuna-7b-v1.5",
+                    "guanaco": "/path/to/guanaco-7B-HF"}
 
 model_path = model_path_dicts[model]
 template_name = model
