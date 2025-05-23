@@ -203,7 +203,7 @@ def get_similarity_score(prompta, promptb, tokenizer, model):
 
 # 196
 df = pd.read_csv('/home/lilinbao/robust_jailbreak-v2/sft-llama2/file3.csv')
-prompt_list = df.values.tolist()[25:40]
+prompt_list = df.values.tolist()
 
 nums = 50
 save_path = f"/home/lilinbao/robust_jailbreak-v2/data/result/rebuttal/llama2-5.csv"
