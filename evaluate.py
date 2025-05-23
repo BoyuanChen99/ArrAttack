@@ -1,4 +1,3 @@
-# 设定使用的GPU
 import os
 import torch
 from tqdm import tqdm
