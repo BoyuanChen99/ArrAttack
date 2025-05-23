@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from transformers import RobertaForSequenceClassification, RobertaTokenizer
 from transformers import AutoTokenizer, AutoModel
 from utils.opt_utils import load_model_and_tokenizer
-from utils.string_utils import load_conversation_template, robpa_SuffixManager
+from utils.string_utils import load_conversation_template, ArrAttack_SuffixManager
 import pandas as pd
 from tqdm import tqdm
 import random
@@ -201,7 +201,7 @@ for item in tqdm(data_list):
         cnt_fail = 0
         for prompt_cur in result[0]:
             
-            suffix_manager = robpa_SuffixManager(tokenizer=tokenizer,
+            suffix_manager = ArrAttack_SuffixManager(tokenizer=tokenizer,
                                          conv_template=conv_template,
                                          instruction=goal,
                                          target=target,

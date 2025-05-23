@@ -8,7 +8,7 @@
 import csv
 import json
 
-# csv_filename = '/home/lilinbao/robust_jailbreak-v2/sft-llama2/llama2-abl.csv'
+# csv_filename = '/path/to/...'
 
 # data = []
 # with open(csv_filename, 'r', encoding='utf-8') as file:
@@ -24,22 +24,22 @@ import json
 # for item in data:
 #     json_data.append({'instruction': instruction, 'input': item['input'], 'response': item['response']})
 
-# json_filename = '/home/lilinbao/robust_jailbreak-v2/sft-llama2/instruction_dataset-abl.json'
+# json_filename = '/path/to/train/instruction_dataset.json'
 # with open(json_filename, 'w', encoding='utf-8') as file:
 #     json.dump(json_data, file, ensure_ascii=False, indent=4)
 
 import json
 from sklearn.model_selection import train_test_split
 
-with open("/home/lilinbao/robust_jailbreak-v2/sft-llama2/instruction_dataset-abl.json", "r", encoding="utf-8") as f:
+with open("/path/to/data/train/instruction_dataset.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
 train_data, val_data = train_test_split(data, test_size=0.1, random_state=42)
 
-with open("/home/lilinbao/robust_jailbreak-v2/sft-llama2/train_data-abl.json", "w", encoding="utf-8") as f:
+with open("/path/to/data/train/train_data.json", "w", encoding="utf-8") as f:
     json.dump(train_data, f, ensure_ascii=False, indent=4)
 
-with open("/home/lilinbao/robust_jailbreak-v2/sft-llama2/val_data-abl.json", "w", encoding="utf-8") as f:
+with open("/path/to/data/train/val_data.json", "w", encoding="utf-8") as f:
     json.dump(val_data, f, ensure_ascii=False, indent=4)
 
 

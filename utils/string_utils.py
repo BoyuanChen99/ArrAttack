@@ -13,7 +13,7 @@ def load_conversation_template(template_name):
         conv_template.system = "[INST] <<SYS>>\n\n<</SYS>>\n\n"
     return conv_template
 
-class robpa_SuffixManager:
+class ArrAttack_SuffixManager:
     def __init__(self, *, tokenizer, conv_template, instruction, target, adv_string):
 
         self.tokenizer = tokenizer

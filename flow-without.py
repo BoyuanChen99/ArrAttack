@@ -14,7 +14,7 @@ from transformers import AutoModelForCausalLM, AutoConfig
 from transformers import AutoModelForSeq2SeqLM
 from transformers import RobertaForSequenceClassification, RobertaTokenizer
 from utils.opt_utils import load_model_and_tokenizer
-from utils.string_utils import load_conversation_template, robpa_SuffixManager
+from utils.string_utils import load_conversation_template, ArrAttack_SuffixManager
 from tqdm import tqdm
 import random
 
@@ -176,7 +176,7 @@ for i, item in tqdm(enumerate(prompt_list)):
                 score_simil = get_similarity_score(prompt, change, tokenizer_simil, model_simil)
                 if score_simil >= 0.6:  # 在此基础上选择，否则无意义
 
-                    suffix_manager = robpa_SuffixManager(tokenizer=tokenizer,
+                    suffix_manager = ArrAttack_SuffixManager(tokenizer=tokenizer,
                                          conv_template=conv_template,
                                          instruction=prompt,
                                          target=target,
