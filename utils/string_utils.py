@@ -2,20 +2,31 @@ import torch
 from fastchat import model
 
 def load_conversation_template(template_name):
+    # Normalize template name for llama2 only
     if template_name == 'llama2':
         template_name = 'llama-2'
+    elif "falcon3" in template_name.lower():
+        template_name = 'tiiuae/Falcon3-10B-Instruct'
+    elif "intern2_5" in template_name.lower():
+        template_name = 'internlm/internlm2_5-20b-chat'
+    # Load template
     conv_template = model.get_conversation_template(template_name)
+    # Customize template if needed
     if conv_template.name == 'zero_shot':
         conv_template.roles = tuple(['### ' + r for r in conv_template.roles])
         conv_template.sep = '\n'
     elif conv_template.name == 'llama-2':
         conv_template.sep2 = conv_template.sep2.strip()
         conv_template.system = "[INST] <<SYS>>\n\n<</SYS>>\n\n"
+    else:
+        conv_template.sep2 = conv_template.sep2.strip()
+        conv_template.system = conv_template.system_template
+    print(f"{conv_template}")
     return conv_template
+
 
 class ArrAttack_SuffixManager:
     def __init__(self, *, tokenizer, conv_template, instruction, target, adv_string):
-
         self.tokenizer = tokenizer
         self.conv_template = conv_template
         self.instruction = instruction      # 指令
@@ -23,17 +34,14 @@ class ArrAttack_SuffixManager:
         self.adv_string = adv_string        # 优化后的指令
 
     def get_prompt(self):
-
         self.conv_template.append_message(self.conv_template.roles[0], f"{self.adv_string}")
         self.conv_template.append_message(self.conv_template.roles[1], f"{self.target}")
         prompt = self.conv_template.get_prompt()
-
         encoding = self.tokenizer(prompt)
         toks = encoding.input_ids
 
         if self.conv_template.name == 'llama-2':
             self.conv_template.messages = []
-
             self.conv_template.append_message(self.conv_template.roles[0], None)
             toks = self.tokenizer(self.conv_template.get_prompt()).input_ids
             self._user_role_slice = slice(None, len(toks))
@@ -116,5 +124,4 @@ class ArrAttack_SuffixManager:
         prompt = self.get_prompt()
         toks = self.tokenizer(prompt).input_ids
         input_ids = torch.tensor(toks[:self._target_slice.stop])
-
         return input_ids
