@@ -1,7 +1,7 @@
 import pandas as pd
 
 def main():
-    data_name = "harmbench"
+    data_name = "strongreject"
     data_file = f"./data/jb_data/{data_name}.csv"
     df = pd.read_csv(data_file, header=None)
     
