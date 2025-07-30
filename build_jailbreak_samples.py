@@ -13,6 +13,13 @@ from utils.opt_utils import load_model_and_tokenizer
 from utils.string_utils import load_conversation_template, ArrAttack_SuffixManager
 from tqdm import tqdm
 import random
+import argparse
+
+
+argparser = argparse.ArgumentParser(description="Build jailbreak samples")
+argparser.add_argument("--model", type=str, default="falcon3", help="Short name of the model to use for jailbreak samples")
+argparser.add_argument("--dataset", type=str, default="harmbench", help="Name of the dataset to process for jailbreak samples")
+FLAGS = argparser.parse_args()
 
 path_to_toxic = "hubert233/GPTFuzz"
 path_to_parap = "humarin/chatgpt_paraphraser_on_T5_base"
@@ -86,7 +93,6 @@ def mean_pooling(model_output, attention_mask):
 # 获取a与b的语义相似度分数
 def get_similarity_score(prompta, promptb, tokenizer, model):
     sentences = [prompta, promptb]
-    # print(f"sentences is {sentences}")
     encoded_input = tokenizer(sentences, padding=True, truncation=True, return_tensors='pt')
 
     encoded_input = {key: value.cuda() for key, value in encoded_input.items()}
@@ -101,9 +107,9 @@ def get_similarity_score(prompta, promptb, tokenizer, model):
     return cosine_scores[0][1].cpu().item()
 
 
-def main():
+def main(args):
     # target LLM
-    model_short_name = "falcon3"
+    model_short_name = args.model.lower()
     model_path_dicts = {"llama2": "meta-llama/Llama-2-7b-chat-hf", 
                         "vicuna": "lmsys/vicuna-7b-v1.5",
                         "guanaco": "TheBloke/guanaco-7B-HF",
@@ -127,7 +133,7 @@ def main():
     model_simil = AutoModel.from_pretrained(path_to_simil, device_map="auto")
     tokenizer_simil = AutoTokenizer.from_pretrained(path_to_simil)
 
-    data_name = "harmful_behaviors"
+    data_name = args.dataset.lower()
     data_file = f"./data/jb_data/{data_name}.csv"
     df = pd.read_csv(data_file)
     prompt_list = df.values.tolist()
@@ -167,7 +173,6 @@ def main():
                 random_penalty = random.choice(numbers)
                 change_list = paraphrase(cur_prompt, tokenizer_parap, model_parap, diversity_penalty=random_penalty)
                 for change in change_list:
-                    # print(f"prompt is {prompt}\nchange is {change}, tokenizer_simil is {tokenizer_simil}, model_simil is {model_simil}")
                     score_simil = get_similarity_score(prompt, change, tokenizer_simil, model_simil)
                     if score_simil >= 0.6:  # 在此基础上选择，否则无意义
 
@@ -226,5 +231,5 @@ def main():
     
 
 if __name__ == "__main__":
-    main()
+    main(FLAGS)
         
