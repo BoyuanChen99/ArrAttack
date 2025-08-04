@@ -21,7 +21,6 @@ def load_conversation_template(template_name):
     else:
         conv_template.sep2 = conv_template.sep2.strip()
         conv_template.system = conv_template.system_template
-    print(f"{conv_template}")
     return conv_template
 
 
