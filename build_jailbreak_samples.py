@@ -257,6 +257,8 @@ def main(args):
             else:
                 df = pd.DataFrame()
                 new_idx = 0
+            if not selected_item or selected_item is None: # When failed to find an above-threshold solution, selected_item will be None. In this case, we just return the original prompt, with scores set to 0.
+                selected_item = [prompt, 0.0, 0.0]
             row = [new_idx, prompt, target] + selected_item + [iteration + 1, time.time() - question_start, response.replace("\n", "\\n")]
             pd.DataFrame([row]).to_csv(save_path, mode='a', index=False, header=not os.path.exists(save_path) or os.path.getsize(save_path) == 0)
     

@@ -9,7 +9,7 @@
 #SBATCH --gres=gpu:a100:1
 #SBATCH --time=71:59:59
 #SBATCH --mem=32GB
-#SBATCH --job-name=AA-FC-HB
+#SBATCH --job-name=AA-FC-SR
 
 module purge
 
@@ -25,4 +25,4 @@ export HF_HOME='/scratch/bc3194/huggingface_cache'
 # Call python script with the model variable
 python -u build_jailbreak_samples.py \
     --model=falcon3 \
-    --dataset=harmbench
+    --dataset=strongreject
